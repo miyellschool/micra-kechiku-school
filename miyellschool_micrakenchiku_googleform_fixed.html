@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マイクラ建築スクール | ミエールスクール</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-dark: #2d5a1b;
+    --green-mid: #4a8c2a;
+    --green-bright: #5cb85c;
+    --green-light: #7dcc4a;
+    --dirt-brown: #8B5E3C;
+    --dirt-dark: #5C3D1E;
+    --stone-gray: #8a8a8a;
+    --cream: #f5f0d8;
+    --gold: #FFD700;
+    --gold-dark: #E6A800;
+    --red-ore: #c0392b;
+    --blue: #3b82f6;
+    --blue-dark: #1e40af;
+    --white: #ffffff;
+    --text-dark: #1a1a1a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--cream); color: var(--text-dark); overflow-x: hidden; }
+
+  /* ===== STICKY NAV ===== */
+  .sticky-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    background: rgba(45, 90, 27, 0.97); backdrop-filter: blur(8px);
+    padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.3);
+    transform: translateY(-100%); transition: transform 0.3s ease;
+  }
+  .sticky-nav.shown { transform: translateY(0); }
+  .nav-brand { font-size: 13px; font-weight: 900; color: var(--gold); line-height: 1.3; }
+  .nav-brand small { display: block; font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 400; }
+  .nav-btn {
+    background: linear-gradient(to bottom, var(--gold), var(--gold-dark));
+    color: var(--dirt-dark); font-size: 13px; font-weight: 900;
+    padding: 10px 20px; border: 3px solid var(--dirt-dark);
+    box-shadow: 3px 3px 0 var(--dirt-dark); cursor: pointer;
+    text-decoration: none; white-space: nowrap;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .nav-btn:hover { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--dirt-dark); }
+
+  /* ===== PIXEL BLOCKS ===== */
+  .pixel-block { display: inline-block; width: 40px; height: 40px; image-rendering: pixelated; }
+  .block-grass { background: linear-gradient(to bottom, var(--green-bright) 30%, var(--dirt-brown) 30%); border: 3px solid var(--green-dark); box-shadow: inset -4px -4px 0 rgba(0,0,0,0.3), inset 4px 4px 0 rgba(255,255,255,0.2); }
+  .block-stone { background: var(--stone-gray); border: 3px solid #555; box-shadow: inset -4px -4px 0 rgba(0,0,0,0.3), inset 4px 4px 0 rgba(255,255,255,0.2); }
+  .block-gold { background: var(--gold); border: 3px solid var(--gold-dark); box-shadow: inset -4px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.4); }
+  .block-diamond { background: #00bcd4; border: 3px solid #0097a7; box-shadow: inset -4px -4px 0 rgba(0,0,0,0.2), inset 4px 4px 0 rgba(255,255,255,0.4); }
+
+  /* ===== HERO ===== */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #87CEEB 0%, #b8e4f7 35%, #c8e89a 65%, var(--green-mid) 100%);
+    position: relative; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden; padding: 80px 20px 80px; text-align: center;
+  }
+  .floating-blocks { position: absolute; top:0;left:0;right:0;bottom:0; pointer-events:none; }
+  .float-block { position: absolute; animation: floatUp 6s ease-in-out infinite; }
+  .float-block:nth-child(1){top:8%;left:4%;animation-delay:0s;}
+  .float-block:nth-child(2){top:12%;right:5%;animation-delay:1s;}
+  .float-block:nth-child(3){top:38%;left:2%;animation-delay:2s;}
+  .float-block:nth-child(4){top:32%;right:3%;animation-delay:1.5s;}
+  .float-block:nth-child(5){top:62%;left:7%;animation-delay:0.5s;}
+  .float-block:nth-child(6){top:58%;right:6%;animation-delay:2.5s;}
+  @keyframes floatUp { 0%,100%{transform:translateY(0) rotate(0deg);} 50%{transform:translateY(-16px) rotate(5deg);} }
+  .ground-blocks { position:absolute;bottom:0;left:0;right:0;height:60px; display:flex;overflow:hidden; }
+  .ground-block { flex-shrink:0;width:60px;height:60px; background:linear-gradient(to bottom, var(--green-bright) 30%, var(--dirt-brown) 30%); border:2px solid var(--green-dark); box-shadow:inset -5px -5px 0 rgba(0,0,0,0.25), inset 5px 5px 0 rgba(255,255,255,0.15); }
+
+  .hero-org { font-size:12px; color:rgba(30,60,10,0.85); background:rgba(255,255,255,0.65); padding:5px 18px; border-radius:20px; margin-bottom:16px; font-weight:700; z-index:2; position:relative; }
+  .hero-badge { background:var(--green-dark); color:var(--gold); font-family:'Press Start 2P',monospace; font-size:9px; padding:8px 20px; border:3px solid var(--gold); margin-bottom:20px; letter-spacing:2px; animation:blink 2s step-end infinite; z-index:2; position:relative; }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.7;} }
+  .hero-title { font-size:clamp(38px,9vw,76px); font-weight:900; color:var(--white); text-shadow:4px 4px 0 var(--green-dark),-2px -2px 0 var(--green-dark),2px -2px 0 var(--green-dark),-2px 2px 0 var(--green-dark),0 6px 20px rgba(0,0,0,0.35); line-height:1.1; margin-bottom:12px; z-index:2; position:relative; }
+  .hero-title .gold { color:var(--gold); text-shadow:4px 4px 0 var(--gold-dark),-2px -2px 0 var(--gold-dark),0 6px 20px rgba(0,0,0,0.3); }
+  .hero-sub { font-size:clamp(18px,4vw,30px); font-weight:900; color:var(--green-dark); background:rgba(255,255,255,0.75); padding:8px 28px; margin-bottom:28px; z-index:2; position:relative; }
+  .hero-tags { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-bottom:36px; z-index:2; position:relative; }
+  .hero-tag { padding:10px 22px; font-size:15px; font-weight:700; border-radius:50px; border:3px solid; }
+  .tag-green { background:var(--green-bright); color:white; border-color:var(--green-dark); box-shadow:3px 3px 0 var(--green-dark); }
+  .tag-blue { background:var(--blue); color:white; border-color:var(--blue-dark); box-shadow:3px 3px 0 var(--blue-dark); }
+  .hero-cta { z-index:2; position:relative; }
+
+  .btn-primary { display:inline-block; background:linear-gradient(to bottom, var(--gold), var(--gold-dark)); color:var(--dirt-dark); font-size:clamp(16px,3vw,22px); font-weight:900; padding:18px 48px; border:4px solid var(--dirt-dark); box-shadow:5px 5px 0 var(--dirt-dark); cursor:pointer; text-decoration:none; transition:transform 0.1s, box-shadow 0.1s; letter-spacing:1px; }
+  .btn-primary:hover { transform:translate(3px,3px); box-shadow:2px 2px 0 var(--dirt-dark); }
+  .btn-outline { display:inline-block; background:white; color:var(--green-dark); font-size:15px; font-weight:700; padding:13px 34px; border:3px solid var(--green-dark); box-shadow:4px 4px 0 var(--green-dark); cursor:pointer; text-decoration:none; transition:transform 0.1s, box-shadow 0.1s; margin-top:14px; }
+  .btn-outline:hover { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--green-dark); }
+
+  /* ===== COMMON ===== */
+  section { padding: 80px 20px; }
+  .container { max-width: 900px; margin: 0 auto; }
+  .section-label { font-family:'Press Start 2P',monospace; font-size:10px; color:var(--green-mid); letter-spacing:3px; text-align:center; margin-bottom:14px; }
+  .section-title { font-size:clamp(26px,5vw,46px); font-weight:900; text-align:center; margin-bottom:48px; color:var(--green-dark); line-height:1.2; }
+  .section-title .hl { color:var(--red-ore); }
+  .pixel-divider { display:flex; overflow:hidden; height:20px; }
+  .pixel-divider span { flex:1; height:20px; }
+  .pixel-divider span:nth-child(odd) { background:var(--green-bright); }
+  .pixel-divider span:nth-child(even) { background:var(--green-dark); }
+
+  /* ===== EVENT BANNER ===== */
+  .event-banner { background:var(--green-dark); }
+  .event-inner { background:linear-gradient(135deg,#1a3d0a 0%,var(--green-dark) 100%); padding:60px 20px; position:relative; overflow:hidden; }
+  .event-inner::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 59px,rgba(255,255,255,0.03) 60px),repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,0.03) 60px); }
+  .event-heading { font-size:clamp(26px,6vw,52px); font-weight:900; color:var(--gold); text-align:center; text-shadow:3px 3px 0 rgba(0,0,0,0.4); margin-bottom:8px; position:relative; }
+  .event-heading small { display:block; font-size:clamp(13px,2.5vw,18px); color:white; font-weight:700; margin-bottom:6px; }
+  .event-dates { display:flex; gap:14px; justify-content:center; margin:28px 0; flex-wrap:wrap; position:relative; }
+  .date-block { background:linear-gradient(to bottom, var(--gold), var(--gold-dark)); border:4px solid var(--dirt-dark); box-shadow:5px 5px 0 rgba(0,0,0,0.4); padding:14px 18px; text-align:center; min-width:78px; }
+  .date-month { font-size:11px; font-weight:700; color:var(--dirt-dark); }
+  .date-day { font-family:'Press Start 2P',monospace; font-size:26px; color:var(--dirt-dark); line-height:1; margin:4px 0; }
+  .date-dotw { font-size:13px; font-weight:700; color:var(--dirt-dark); }
+  .event-note { color:white; font-size:17px; font-weight:700; text-align:center; opacity:.9; position:relative; }
+  .free-badge { display:inline-block; background:var(--red-ore); color:white; font-size:13px; font-weight:900; padding:3px 12px; border-radius:4px; margin-right:8px; letter-spacing:1px; }
+  .event-cta { text-align:center; margin-top:32px; position:relative; }
+
+  /* ===== FEATURES ===== */
+  .features { background:var(--cream); }
+  .features-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:24px; }
+  .feature-card { background:white; border:3px solid var(--green-dark); box-shadow:6px 6px 0 var(--green-dark); padding:30px 22px; position:relative; transition:transform 0.15s, box-shadow 0.15s; overflow:hidden; }
+  .feature-card::before { content:''; position:absolute; top:0;left:0;right:0; height:6px; background:var(--green-bright); }
+  .feature-card:nth-child(2)::before { background:var(--gold); }
+  .feature-card:nth-child(3)::before { background:var(--blue); }
+  .feature-card:hover { transform:translate(-3px,-3px); box-shadow:9px 9px 0 var(--green-dark); }
+  .feature-icon { font-size:44px; margin-bottom:14px; display:block; }
+  .feature-title { font-size:19px; font-weight:900; margin-bottom:10px; color:var(--green-dark); }
+  .feature-desc { font-size:14px; line-height:1.75; color:#444; }
+
+  /* ===== BENEFITS ===== */
+  .benefits { background:linear-gradient(to bottom,#e8f5e9,#f0f7eb); }
+  .benefits-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; }
+  .benefit-item { display:flex; align-items:flex-start; gap:14px; padding:20px; background:white; border-left:5px solid var(--green-bright); box-shadow:3px 3px 0 rgba(0,0,0,0.07); }
+  .benefit-num { font-family:'Press Start 2P',monospace; font-size:18px; color:var(--green-bright); flex-shrink:0; line-height:1; margin-top:2px; }
+  .benefit-text strong { display:block; font-size:16px; font-weight:900; color:var(--green-dark); margin-bottom:5px; }
+  .benefit-text p { font-size:13px; color:#555; line-height:1.65; }
+
+  /* ===== WHO ===== */
+  .who-section { background:white; }
+  .who-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; }
+  .who-card { text-align:center; padding:26px 14px; background:var(--cream); border:3px solid var(--green-dark); transition:transform 0.15s; }
+  .who-card:hover { transform:translateY(-5px); }
+  .who-icon { width:60px; height:60px; background:var(--green-bright); border:3px solid var(--green-dark); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:26px; box-shadow:4px 4px 0 var(--green-dark); }
+  .who-card h3 { font-size:15px; font-weight:900; color:var(--green-dark); line-height:1.4; }
+
+  /* ===== ORG SECTION ===== */
+  .org-section { background:linear-gradient(135deg,#0f4c3a,#0d9488); }
+  .org-inner { display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap; }
+  .org-text { flex:1; min-width:260px; color:white; }
+  .org-label { font-family:'Press Start 2P',monospace; font-size:9px; color:rgba(255,255,255,0.55); letter-spacing:3px; margin-bottom:16px; }
+  .org-text h2 { font-size:clamp(22px,4vw,34px); font-weight:900; color:var(--gold); margin-bottom:8px; line-height:1.3; }
+  .org-sub { font-size:16px; font-weight:700; color:rgba(255,255,255,0.85); margin-bottom:20px; }
+  .org-text p { font-size:14px; line-height:1.8; color:rgba(255,255,255,0.8); }
+  .org-badges { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+  .org-badge { background:rgba(255,255,255,0.15); border:2px solid rgba(255,255,255,0.3); color:white; font-size:13px; font-weight:700; padding:6px 14px; border-radius:4px; }
+  .org-card { flex:1; min-width:240px; background:rgba(255,255,255,0.12); border:2px solid rgba(255,255,255,0.25); padding:28px; }
+  .org-card-icon { font-size:40px; margin-bottom:12px; }
+  .org-card h3 { font-size:18px; font-weight:900; color:var(--gold); margin-bottom:10px; }
+  .org-card p { font-size:14px; color:rgba(255,255,255,0.8); line-height:1.75; }
+
+  /* ===== LOCATION ===== */
+  .location-section { background:var(--green-dark); color:white; }
+  .location-inner { display:flex; gap:40px; align-items:center; flex-wrap:wrap; }
+  .location-text { flex:1; min-width:260px; }
+  .location-text h2 { font-size:30px; font-weight:900; margin-bottom:22px; color:var(--gold); }
+  .location-info { display:flex; flex-direction:column; gap:14px; }
+  .loc-row { display:flex; gap:14px; align-items:flex-start; font-size:15px; line-height:1.65; }
+  .loc-icon { font-size:20px; flex-shrink:0; }
+  .location-map-box { flex:1; min-width:260px; height:220px; background:rgba(255,255,255,0.1); border:3px solid var(--gold); display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--gold); font-size:14px; font-weight:700; gap:12px; text-align:center; }
+  .map-pin { font-size:40px; animation:bounce 1.5s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+
+  /* ===== FORM SECTION ===== */
+  .form-section { background:linear-gradient(135deg,var(--dirt-dark),var(--dirt-brown)); padding:80px 20px; position:relative; overflow:hidden; }
+  .form-section::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(255,255,255,0.02) 10px,rgba(255,255,255,0.02) 20px); }
+  .form-inner { position:relative; max-width:860px; margin:0 auto; }
+  .form-heading { text-align:center; margin-bottom:36px; }
+  .form-heading h2 { font-size:clamp(24px,5vw,42px); font-weight:900; color:var(--gold); text-shadow:3px 3px 0 rgba(0,0,0,0.4); margin-bottom:10px; }
+  .form-heading p { color:rgba(255,255,255,0.85); font-size:16px; }
+  .form-urgency { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:30px; }
+  .urgency-red { background:var(--red-ore); color:white; font-size:14px; font-weight:900; padding:9px 20px; border:2px solid rgba(255,255,255,0.3); border-radius:4px; animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.03);} }
+  .urgency-green { background:var(--green-bright); color:white; font-size:14px; font-weight:900; padding:9px 20px; border:2px solid var(--green-dark); border-radius:4px; }
+  .form-wrapper { background:white; border:4px solid var(--gold); box-shadow:8px 8px 0 rgba(0,0,0,0.3); overflow:hidden; padding:34px 22px; text-align:center; }
+  .form-wrapper h3 { font-size:clamp(22px,4vw,32px); color:var(--green-dark); font-weight:900; margin-bottom:28px; }
+  .form-wrapper p { font-size:16px; color:#444; line-height:1.8; margin-bottom:24px; }
+  .reservation-button { display:inline-block; width:min(100%,420px); background:linear-gradient(to bottom,var(--gold),var(--gold-dark)); color:var(--dirt-dark); font-size:clamp(17px,4vw,22px); font-weight:900; padding:18px 26px; border:4px solid var(--dirt-dark); box-shadow:5px 5px 0 var(--dirt-dark); text-decoration:none; transition:transform .1s, box-shadow .1s; }
+  .reservation-button:hover { transform:translate(3px,3px); box-shadow:2px 2px 0 var(--dirt-dark); }
+  .form-note { text-align:center; margin-top:18px; color:rgba(255,255,255,0.75); font-size:13px; line-height:1.8; }
+  .form-note a { color:var(--gold); font-weight:700; }
+
+  /* ===== FOOTER ===== */
+  footer { background:#111; color:rgba(255,255,255,0.55); padding:36px 20px; text-align:center; font-size:13px; line-height:1.9; }
+  .footer-logo { color:var(--gold); font-size:17px; font-weight:900; margin-bottom:4px; }
+  .footer-org { color:rgba(255,255,255,0.75); font-size:12px; margin-bottom:16px; }
+  .footer-divider { width:60px; height:2px; background:var(--green-bright); margin:16px auto; }
+
+  /* ===== REVEAL ===== */
+  .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+
+  @media (max-width:640px) {
+    .date-day { font-size:20px; }
+    .date-block { min-width:66px; padding:10px 12px; }
+    section { padding:56px 16px; }
+    .form-wrapper { padding:26px 16px; }
+    .reservation-button { width:100%; padding:16px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- STICKY NAV -->
+<nav class="sticky-nav" id="stickyNav">
+  <div class="nav-brand">
+    マイクラ建築スクール
+    <small>ミエールスクール</small>
+  </div>
+  <a href="https://forms.gle/zobT6RFb3GKPTbdK7" target="_blank" rel="noopener noreferrer" class="nav-btn">🟡 無料体験を予約 →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="floating-blocks">
+    <div class="float-block"><div class="pixel-block block-grass"></div></div>
+    <div class="float-block"><div class="pixel-block block-gold"></div></div>
+    <div class="float-block"><div class="pixel-block block-stone"></div></div>
+    <div class="float-block"><div class="pixel-block block-diamond"></div></div>
+    <div class="float-block"><div class="pixel-block block-grass"></div></div>
+    <div class="float-block"><div class="pixel-block block-gold"></div></div>
+  </div>
+  <p class="hero-org">一般社団法人 子ども支援型ミエールプロジェクト ／ ミエールスクール 運営</p>
+  <div class="hero-badge">🎮 GW LIMITED EVENT</div>
+  <h1 class="hero-title">マイクラ<span class="gold">建築</span>スクール</h1>
+  <p class="hero-sub">つくるって、おもしろい。</p>
+  <div class="hero-tags">
+    <span class="hero-tag tag-green">✅ 小学生からOK！</span>
+    <span class="hero-tag tag-blue">✅ はじめてでもOK！</span>
+  </div>
+  <div class="hero-cta">
+    <a href="https://forms.gle/zobT6RFb3GKPTbdK7" target="_blank" rel="noopener noreferrer" class="btn-primary">🟡 無料体験会に申し込む →</a><br>
+    <a href="#about" class="btn-outline">スクールについて詳しく見る ↓</a>
+  </div>
+  <div class="ground-blocks" id="groundBlocks"></div>
+</section>
+
+<!-- EVENT BANNER -->
+<div class="event-banner">
+  <div class="event-inner">
+    <div class="container">
+      <div class="event-heading reveal">
+        <small>🎉 GW限定・参加費0円</small>
+        無料体験会 開催！
+      </div>
+      <div class="event-dates reveal">
+        <div class="date-block"><div class="date-month">5月</div><div class="date-day">3</div><div class="date-dotw">土</div></div>
+        <div class="date-block"><div class="date-month">5月</div><div class="date-day">4</div><div class="date-dotw">日</div></div>
+        <div class="date-block"><div class="date-month">5月</div><div class="date-day">5</div><div class="date-dotw">月</div></div>
+        <div class="date-block"><div class="date-month">5月</div><div class="date-day">6</div><div class="date-dotw">火</div></div>
+      </div>
+      <p class="event-note reveal">
+        <span class="free-badge">無料</span>GWはみんなでマイクラしよう！<br>
+        <small style="opacity:.7;font-size:13px;">定員に達し次第受付終了。お早めに！</small>
+      </p>
+      <div class="event-cta reveal">
+        <a href="https://forms.gle/zobT6RFb3GKPTbdK7" target="_blank" rel="noopener noreferrer" class="btn-primary" style="font-size:18px;padding:16px 40px;">🟡 今すぐ申し込む →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pixel-divider"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- FEATURES -->
+<section class="features" id="about">
+  <div class="container">
+    <div class="section-label">WHAT YOU LEARN</div>
+    <h2 class="section-title reveal">スクールで<span class="hl">身につく</span>こと</h2>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <span class="feature-icon">💡</span>
+        <div class="feature-title">創造力が育つ</div>
+        <p class="feature-desc">ゼロから建物をデザインすることで、自由な発想と創造的思考力が自然と身につきます。「どんな家をつくろう？」から始まる探求の時間。</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🖥️</span>
+        <div class="feature-title">PCスキルUP</div>
+        <p class="feature-desc">ゲームをしながら、マウス・キーボード操作やパソコンの基本スキルを楽しく習得。デジタルネイティブな世代に必要なリテラシーが育ちます。</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🤝</span>
+        <div class="feature-title">協調性・伝える力</div>
+        <p class="feature-desc">チームで建築プロジェクトを進めることで、相手に伝える力・一緒に考える力・役割分担のスキルが自然と身につきます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits">
+  <div class="container">
+    <div class="section-label">WHY CHOOSE US</div>
+    <h2 class="section-title reveal">選ばれる<span class="hl">6つ</span>の理由</h2>
+    <div class="benefits-list">
+      <div class="benefit-item reveal">
+        <div class="benefit-num">01</div>
+        <div class="benefit-text"><strong>小学生から通えるカリキュラム</strong><p>難しいコードは不要。ゲームを遊びながら、楽しく学べる独自プログラムを用意しています。</p></div>
+      </div>
+      <div class="benefit-item reveal">
+        <div class="benefit-num">02</div>
+        <div class="benefit-text"><strong>未経験・初心者も大歓迎</strong><p>マイクラをはじめて触る子でも安心。基礎から丁寧にサポートします。</p></div>
+      </div>
+      <div class="benefit-item reveal">
+        <div class="benefit-num">03</div>
+        <div class="benefit-text"><strong>少人数制で手厚い指導</strong><p>一人ひとりのペースに合わせた指導で、確実にスキルアップできます。</p></div>
+      </div>
+      <div class="benefit-item reveal">
+        <div class="benefit-num">04</div>
+        <div class="benefit-text"><strong>学校教育との親和性</strong><p>空間認識・論理的思考・発表力など、学校で求められる力が自然と養われます。</p></div>
+      </div>
+      <div class="benefit-item reveal">
+        <div class="benefit-num">05</div>
+        <div class="benefit-text"><strong>無料体験でリスクゼロ</strong><p>まずは無料で体験してから判断OK。費用をかける前にお子様の反応を確かめられます。</p></div>
+      </div>
+      <div class="benefit-item reveal">
+        <div class="benefit-num">06</div>
+        <div class="benefit-text"><strong>一般社団法人が運営する安心感</strong><p>子ども支援を専門とする法人が運営。継続的・安全なサポート体制を整えています。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO -->
+<section class="who-section">
+  <div class="container">
+    <div class="section-label">FOR WHO</div>
+    <h2 class="section-title reveal">こんなお子様に<span class="hl">ぴったり</span></h2>
+    <div class="who-grid">
+      <div class="who-card reveal"><div class="who-icon">🎮</div><h3>ゲームが大好きな子</h3></div>
+      <div class="who-card reveal"><div class="who-icon">🏠</div><h3>ものづくりが好きな子</h3></div>
+      <div class="who-card reveal"><div class="who-icon">💻</div><h3>パソコンに興味がある子</h3></div>
+      <div class="who-card reveal"><div class="who-icon">🎨</div><h3>絵を描くのが好きな子</h3></div>
+      <div class="who-card reveal"><div class="who-icon">🔧</div><h3>設計・工作が得意な子</h3></div>
+      <div class="who-card reveal"><div class="who-icon">🌟</div><h3>新しいことに挑戦したい子</h3></div>
+    </div>
+  </div>
+</section>
+
+<!-- ORG SECTION -->
+<section class="org-section">
+  <div class="container">
+    <div class="org-inner">
+      <div class="org-text reveal">
+        <div class="org-label">ABOUT US</div>
+        <h2>一般社団法人<br>子ども支援型<br>ミエールプロジェクト</h2>
+        <p class="org-sub">▶ 運営スクール：ミエールスクール</p>
+        <p>子どもたちの可能性を「見える化」することをミッションに、地域に根ざした子ども支援活動を行う一般社団法人です。マイクラ建築スクールは、「遊びを通じた学び」を実践するミエールスクールが運営しています。</p>
+        <div class="org-badges">
+          <span class="org-badge">🏛️ 一般社団法人</span>
+          <span class="org-badge">🧒 子ども支援</span>
+          <span class="org-badge">🌱 地域密着</span>
+          <span class="org-badge">💡 非営利活動</span>
+        </div>
+      </div>
+      <div class="org-card reveal">
+        <div class="org-card-icon">🏫</div>
+        <h3>ミエールスクールとは</h3>
+        <p>「好き」を伸ばし、「できた！」をたくさん経験させることで、子どもの自己肯定感と主体性を育てる学びの場です。マイクラ建築スクールはその一環として運営されており、楽しく・安全に・継続的に通える環境づくりを大切にしています。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION -->
+<section class="location-section">
+  <div class="container">
+    <div class="location-inner">
+      <div class="location-text reveal">
+        <h2>📍 開催場所</h2>
+        <div class="location-info">
+          <div class="loc-row"><span class="loc-icon">🏫</span><div><strong>やすらガーデンそば<br>イシノチカラ 内</strong></div></div>
+          <div class="loc-row"><span class="loc-icon">📅</span><div>体験会日程：5月3日・4日・5日・6日<br><small style="opacity:.8">（GW期間特別開催）</small></div></div>
+          <div class="loc-row"><span class="loc-icon">🏢</span><div>主催：ミエールスクール<br><small style="opacity:.8">（一般社団法人子ども支援型ミエールプロジェクト）</small></div></div>
+          <div class="loc-row"><span class="loc-icon">📩</span><div>詳細はお申し込み後にご連絡いたします</div></div>
+          <div class="loc-row"><span class="loc-icon">🚗</span><div>お車でのご来場も歓迎です</div></div>
+        </div>
+      </div>
+      <div class="location-map-box reveal">
+        <div class="map-pin">📍</div>
+        <div>やすらガーデンそば<br>イシノチカラ内</div>
+        <small style="opacity:.6">詳細はお申し込み後にお知らせします</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORM SECTION -->
+<section class="form-section" id="form">
+  <div class="form-inner">
+    <div class="form-wrapper reveal">
+      <h3>無料体験のご予約はこちら</h3>
+      <a
+        href="https://forms.gle/zobT6RFb3GKPTbdK7"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="reservation-button"
+      >
+        🟡 無料体験を予約する →
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="pixel-divider"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">マイクラ建築スクール</div>
+  <div class="footer-org">
+    運営：ミエールスクール<br>
+    主催：一般社団法人 子ども支援型ミエールプロジェクト
+  </div>
+  <div>やすらガーデンそば｜イシノチカラ内</div>
+  <div>無料体験会：2025年5月3日・4日・5日・6日</div>
+  <div class="footer-divider"></div>
+  <small>
+    このサイトはマイクラ建築スクール体験会の告知のために作成されました。<br>
+    Minecraftに関する名称・ゲームシステム等の知的財産権は各権利者に帰属します。<br>
+    本スクールはMojang Studios / Microsoft社が公式に認定・後援しているものではありません。
+  </small>
+</footer>
+
+<script>
+  // Ground blocks
+  const gb = document.getElementById('groundBlocks');
+  if (gb) {
+    const count = Math.ceil(window.innerWidth / 60) + 4;
+    gb.innerHTML = Array(count).fill('<div class="ground-block"></div>').join('');
+  }
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const idx = Array.from(entry.target.parentElement.children).indexOf(entry.target) % 5;
+        setTimeout(() => entry.target.classList.add('visible'), idx * 80);
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => obs.observe(el));
+
+  // Sticky nav
+  const nav = document.getElementById('stickyNav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('shown', window.scrollY > 300);
+  }, { passive: true });
+</script>
+</body>
+</html>
